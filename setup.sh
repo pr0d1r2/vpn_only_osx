@@ -3,6 +3,8 @@
 D_R=`cd \`dirname $0\` ; pwd -P`
 
 OPENVPN_SERVER_IP=$1
+OSX_VERSION=`sw_vers -productVersion`
+OSX_VERSION_MINOR=`echo $OSX_VERSION | cut -f1-2 -d .`
 
 case $OPENVPN_SERVER_IP in
   "")
@@ -18,6 +20,11 @@ function install_file() {
 }
 
 install_file $D_R/pf.conf /etc/pf.conf.vpn_only_osx 600
+case $OSX_VERSION_MINOR in
+  10.10)
+    sudo sed -ie "s/on tun0 from/on utun0 from/g" /etc/pf.conf.vpn_only_osx
+    ;;
+esac
 sudo sed -ie "s/OPENVPN_SERVER_IP/$OPENVPN_SERVER_IP/g" /etc/pf.conf.vpn_only_osx
 
 install_file $D_R/vpn_only_osx.sh /sbin/pf_vpn_only 700
